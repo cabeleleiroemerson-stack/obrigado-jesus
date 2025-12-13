@@ -1,53 +1,74 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import './i18n';
+import './App.css';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import LandingPage from './pages/LandingPage';
+import AuthPage from './pages/AuthPage';
+import HomePage from './pages/HomePage';
+import AIChat from './pages/AIChat';
+import ServicesPage from './pages/ServicesPage';
+import ProfilePage from './pages/ProfilePage';
+import AdminDashboard from './pages/AdminDashboard';
 
-const Home = () => {
-  const helloWorldApi = async () => {
+export const AuthContext = React.createContext();
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    if (token) {
+      fetchUser();
+    }
+  }, [token]);
+
+  const fetchUser = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+      } else {
+        logout();
+      }
+    } catch (error) {
+      console.error('Error fetching user:', error);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const login = (newToken, userData) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+    setUser(userData);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  };
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <div className="App">
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={!user ? <LandingPage /> : <Navigate to="/home" />} />
+          <Route path="/auth" element={!user ? <AuthPage /> : <Navigate to="/home" />} />
+          <Route path="/home" element={user ? <HomePage /> : <Navigate to="/" />} />
+          <Route path="/chat" element={user ? <AIChat /> : <Navigate to="/" />} />
+          <Route path="/services" element={user ? <ServicesPage /> : <Navigate to="/" />} />
+          <Route path="/profile" element={user ? <ProfilePage /> : <Navigate to="/" />} />
+          <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/home" />} />
         </Routes>
       </BrowserRouter>
-    </div>
+    </AuthContext.Provider>
   );
 }
 
