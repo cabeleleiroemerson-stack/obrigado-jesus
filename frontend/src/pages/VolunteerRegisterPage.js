@@ -32,6 +32,19 @@ const HELP_TYPES = [
   'Suporte emocional'
 ];
 
+const HELP_CATEGORIES = [
+  { value: 'food', label: 'Alimentação', icon: '🍽️', desc: 'Distribuição de alimentos, refeições' },
+  { value: 'legal', label: 'Jurídico', icon: '⚖️', desc: 'Assistência jurídica, documentação' },
+  { value: 'health', label: 'Saúde', icon: '🏥', desc: 'Atendimento médico, psicológico' },
+  { value: 'housing', label: 'Moradia', icon: '🏠', desc: 'Abrigo, habitação' },
+  { value: 'work', label: 'Emprego', icon: '💼', desc: 'Orientação profissional, CV' },
+  { value: 'education', label: 'Educação', icon: '📚', desc: 'Cursos, escolarização' },
+  { value: 'social', label: 'Apoio Social', icon: '🤝', desc: 'Assistência social, integração' },
+  { value: 'clothes', label: 'Roupas', icon: '👕', desc: 'Vestuário, calçados' },
+  { value: 'furniture', label: 'Móveis', icon: '🪑', desc: 'Móveis, utensílios domésticos' },
+  { value: 'transport', label: 'Transporte', icon: '🚗', desc: 'Ajuda com deslocamento' }
+];
+
 export default function VolunteerRegisterPage() {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
