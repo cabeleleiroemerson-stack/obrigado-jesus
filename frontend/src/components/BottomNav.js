@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, MessageCircle, Search, User, Settings } from 'lucide-react';
+import { Home, MessageCircle, Search, User, Settings, Users } from 'lucide-react';
 import { AuthContext } from '../App';
 
 export default function BottomNav() {
