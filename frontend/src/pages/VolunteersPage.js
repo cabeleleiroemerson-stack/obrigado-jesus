@@ -194,13 +194,55 @@ export default function VolunteersPage() {
                     </div>
                   )}
 
-                  {volunteer.experience && (
-                    <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-                      <p className="text-sm font-bold text-textPrimary mb-1 flex items-center gap-1">
-                        <Briefcase size={16} />
-                        Experiência:
+                  {volunteer.education && (
+                    <div className="mb-3 p-3 bg-blue-50 rounded-xl">
+                      <p className="text-sm font-bold text-primary mb-1 flex items-center gap-1">
+                        <GraduationCap size={16} />
+                        Formação:
                       </p>
-                      <p className="text-sm text-textSecondary">{volunteer.experience}</p>
+                      <p className="text-sm text-textSecondary whitespace-pre-line">{volunteer.education}</p>
+                    </div>
+                  )}
+
+                  {volunteer.certifications && volunteer.certifications.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-sm font-bold text-textPrimary mb-2 flex items-center gap-1">
+                        <Shield size={16} />
+                        Certificações:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {volunteer.certifications.map((cert, idx) => (
+                          <span 
+                            key={idx}
+                            className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200"
+                          >
+                            {cert}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {volunteer.organization && (
+                    <div className="mb-3 flex items-center gap-2 text-sm text-textSecondary">
+                      <Building size={16} />
+                      <span>{volunteer.organization}</span>
+                    </div>
+                  )}
+
+                  {volunteer.years_experience && (
+                    <div className="mb-3 flex items-center gap-2 text-sm text-textSecondary">
+                      <Clock size={16} />
+                      <span>{volunteer.years_experience} de experiência</span>
+                    </div>
+                  )}
+
+                  {volunteer.professional_id && (
+                    <div className="mb-3 p-2 bg-green-50 rounded-lg flex items-center gap-2">
+                      <Shield size={16} className="text-green-600" />
+                      <span className="text-xs font-medium text-green-700">
+                        Registro: {volunteer.professional_id}
+                      </span>
                     </div>
                   )}
 
