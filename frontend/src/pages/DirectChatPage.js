@@ -185,13 +185,37 @@ export default function DirectChatPage() {
                       <User size={18} className="text-white" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] px-4 py-3 ${
+                  <div className={`max-w-[80%] ${
                     isCurrentUser ? 'chat-bubble-user' : 'chat-bubble-ai'
                   }`}>
-                    <p className="leading-relaxed whitespace-pre-wrap">{msg.message}</p>
-                    <p className="text-xs mt-1 opacity-70">
-                      {new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+                    <div className="px-4 py-3">
+                      {msg.location && (
+                        <div className="mb-2 p-2 bg-white/20 rounded-lg flex items-center gap-2">
+                          <MapPin size={16} />
+                          <a 
+                            href={`https://www.google.com/maps?q=${msg.location.lat},${msg.location.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm underline"
+                          >
+                            Ver no mapa
+                          </a>
+                        </div>
+                      )}
+                      {msg.media && msg.media.length > 0 && (
+                        <div className="mb-2">
+                          {msg.media_type === 'image' ? (
+                            <img src={msg.media[0]} alt="" className="rounded-lg max-w-full max-h-64 object-cover" />
+                          ) : (
+                            <video src={msg.media[0]} controls className="rounded-lg max-w-full max-h-64" />
+                          )}
+                        </div>
+                      )}
+                      <p className="leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                      <p className="text-xs mt-1 opacity-70">
+                        {new Date(msg.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
                   </div>
                   {isCurrentUser && (
                     <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
