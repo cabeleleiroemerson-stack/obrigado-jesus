@@ -101,3 +101,98 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Corrigir erro na parte de cadastro de voluntário colocando uma condição para que somente quem se comprometeu em ajudar com uma determinada tipo de ajuda como alimentação possa ver o post dessa pessoa e chat esteja disponível de acordo com essas regras"
+
+backend:
+  - task: "Adicionar campo help_categories no registro de voluntário"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Adicionado campo help_categories no UserRegister e salvamento no MongoDB"
+
+  - task: "Filtrar posts baseado nas categorias do voluntário"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Endpoint /api/posts agora filtra posts para voluntários baseado em help_categories"
+
+  - task: "Endpoint can-chat para verificar permissão de chat"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Criado endpoint /api/can-chat/{user_id} que verifica se voluntário pode conversar"
+
+frontend:
+  - task: "Adicionar seleção de categorias de ajuda no cadastro de voluntário"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/VolunteerRegisterPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Adicionada seção HELP_CATEGORIES no Step 4 do cadastro"
+
+  - task: "Condicionar botão de chat no HomePage baseado em can_help"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/HomePage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Botão Conversar só aparece se post.can_help é true"
+
+  - task: "Verificar permissão de chat no DirectChatPage"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/DirectChatPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Adicionada verificação de canChat e UI de restrição"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Adicionar campo help_categories no registro de voluntário"
+    - "Filtrar posts baseado nas categorias do voluntário"
+    - "Endpoint can-chat para verificar permissão de chat"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+    - message: "Implementei a funcionalidade de filtro de posts e chat baseado nas categorias de ajuda do voluntário. Por favor, testar: 1) Registro de voluntário com help_categories, 2) Filtro de posts para voluntários, 3) Endpoint can-chat"
