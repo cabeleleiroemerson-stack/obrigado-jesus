@@ -56,6 +56,10 @@ class UserRegister(BaseModel):
     name: str
     role: str
     languages: List[str] = Field(default_factory=list)
+    professional_area: Optional[str] = None
+    professional_specialties: Optional[List[str]] = Field(default_factory=list)
+    availability: Optional[str] = None
+    experience: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
