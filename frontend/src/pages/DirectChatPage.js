@@ -16,6 +16,7 @@ export default function DirectChatPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const [showMediaOptions, setShowMediaOptions] = useState(false);
 
   useEffect(() => {
     fetchOtherUser();
