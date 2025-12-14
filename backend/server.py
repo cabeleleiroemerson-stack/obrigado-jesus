@@ -312,6 +312,96 @@ async def admin_stats(current_user: User = Depends(get_current_user)):
         'total_matches': total_matches
     }
 
+class DirectMessage(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    from_user_id: str
+    to_user_id: str
+    message: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class DirectMessageCreate(BaseModel):
+    to_user_id: str
+    message: str
+
+@api_router.post("/messages")
+async def send_message(msg_data: DirectMessageCreate, current_user: User = Depends(get_current_user)):
+    message = DirectMessage(
+        from_user_id=current_user.id,
+        to_user_id=msg_data.to_user_id,
+        message=msg_data.message
+    )
+    
+    msg_dict = message.model_dump()
+    msg_dict['created_at'] = msg_dict['created_at'].isoformat()
+    
+    await db.messages.insert_one(msg_dict)
+    return message
+
+@api_router.get("/messages/{other_user_id}")
+async def get_messages(other_user_id: str, current_user: User = Depends(get_current_user)):
+    messages = await db.messages.find({
+        '$or': [
+            {'from_user_id': current_user.id, 'to_user_id': other_user_id},
+            {'from_user_id': other_user_id, 'to_user_id': current_user.id}
+        ]
+    }, {'_id': 0}).sort('created_at', 1).to_list(1000)
+    
+    for msg in messages:
+        if isinstance(msg['created_at'], str):
+            msg['created_at'] = datetime.fromisoformat(msg['created_at'])
+    
+    return messages
+
+@api_router.get("/conversations")
+async def get_conversations(current_user: User = Depends(get_current_user)):
+    messages = await db.messages.find({
+        '$or': [
+            {'from_user_id': current_user.id},
+            {'to_user_id': current_user.id}
+        ]
+    }, {'_id': 0}).to_list(10000)
+    
+    user_ids = set()
+    for msg in messages:
+        if msg['from_user_id'] != current_user.id:
+            user_ids.add(msg['from_user_id'])
+        if msg['to_user_id'] != current_user.id:
+            user_ids.add(msg['to_user_id'])
+    
+    conversations = []
+    for uid in user_ids:
+        user = await db.users.find_one({'id': uid}, {'_id': 0, 'password': 0})
+        if user:
+            last_msg = await db.messages.find_one({
+                '$or': [
+                    {'from_user_id': current_user.id, 'to_user_id': uid},
+                    {'from_user_id': uid, 'to_user_id': current_user.id}
+                ]
+            }, {'_id': 0}, sort=[('created_at', -1)])
+            
+            if isinstance(user.get('created_at'), str):
+                user['created_at'] = datetime.fromisoformat(user['created_at'])
+            
+            conversations.append({
+                'user': user,
+                'last_message': last_msg['message'] if last_msg else '',
+                'last_message_time': last_msg['created_at'] if last_msg else None
+            })
+    
+    return conversations
+
+@api_router.get("/users/{user_id}")
+async def get_user_by_id(user_id: str, current_user: User = Depends(get_current_user)):
+    user = await db.users.find_one({'id': user_id}, {'_id': 0, 'password': 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if isinstance(user.get('created_at'), str):
+        user['created_at'] = datetime.fromisoformat(user['created_at'])
+    
+    return user
+
 app.include_router(api_router)
 
 app.add_middleware(
