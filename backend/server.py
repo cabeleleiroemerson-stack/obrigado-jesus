@@ -211,6 +211,27 @@ async def create_post(post_data: PostCreate, current_user: User = Depends(get_cu
     post_dict['images'] = post_data.images or []
     
     await db.posts.insert_one(post_dict)
+    
+    if post_data.type == 'need':
+        auto_response_data = format_auto_response_post(post_data.category, post.id)
+        if auto_response_data:
+            auto_response = Post(
+                user_id='system',
+                type=auto_response_data['type'],
+                category=auto_response_data['category'],
+                title=auto_response_data['title'],
+                description=auto_response_data['description'],
+                location=None
+            )
+            
+            auto_response_dict = auto_response.model_dump()
+            auto_response_dict['created_at'] = auto_response_dict['created_at'].isoformat()
+            auto_response_dict['images'] = []
+            auto_response_dict['is_auto_response'] = True
+            auto_response_dict['reply_to'] = post.id
+            
+            await db.posts.insert_one(auto_response_dict)
+    
     return post
 
 @api_router.post("/posts/{post_id}/comments")
