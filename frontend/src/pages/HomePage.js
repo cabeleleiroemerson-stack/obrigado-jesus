@@ -23,8 +23,13 @@ export default function HomePage() {
     type: user?.role === 'migrant' ? 'need' : 'offer',
     category: 'food',
     title: '',
-    description: ''
+    description: '',
+    images: [],
+    location: null
   });
+  const [showComments, setShowComments] = useState({});
+  const [comments, setComments] = useState({});
+  const [newComment, setNewComment] = useState('');
 
   const categories = [
     { value: 'food', label: t('food'), color: 'bg-green-100 text-green-700 border-green-200' },
