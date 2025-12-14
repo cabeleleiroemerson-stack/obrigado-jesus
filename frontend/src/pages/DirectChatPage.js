@@ -15,6 +15,8 @@ export default function DirectChatPage() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [canChat, setCanChat] = useState(true);
+  const [chatRestrictionReason, setChatRestrictionReason] = useState('');
   const messagesEndRef = useRef(null);
   const [showMediaOptions, setShowMediaOptions] = useState(false);
   const fileInputRef = useRef(null);
@@ -22,6 +24,7 @@ export default function DirectChatPage() {
 
   useEffect(() => {
     fetchOtherUser();
+    checkCanChat();
     fetchMessages();
     const interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
