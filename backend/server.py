@@ -173,6 +173,14 @@ async def register(user_data: UserRegister):
         user_dict['professional_specialties'] = user_data.professional_specialties or []
         user_dict['availability'] = user_data.availability
         user_dict['experience'] = user_data.experience
+        user_dict['education'] = user_data.education
+        user_dict['certifications'] = user_data.certifications or []
+        user_dict['professional_id'] = user_data.professional_id
+        user_dict['organization'] = user_data.organization
+        user_dict['years_experience'] = user_data.years_experience
+        user_dict['help_types'] = user_data.help_types or []
+        user_dict['phone'] = user_data.phone
+        user_dict['linkedin'] = user_data.linkedin
     
     await db.users.insert_one(user_dict)
     
