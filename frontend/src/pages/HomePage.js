@@ -399,8 +399,18 @@ export default function HomePage() {
               <div 
                 key={post.id} 
                 data-testid="post-card"
-                className="bg-white rounded-3xl p-6 shadow-card card-hover"
+                className={`rounded-3xl p-6 shadow-card card-hover ${
+                  post.is_auto_response 
+                    ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-primary' 
+                    : 'bg-white'
+                }`}
               >
+                {post.is_auto_response && (
+                  <div className="flex items-center gap-2 mb-4 px-3 py-2 bg-primary/10 rounded-full w-fit">
+                    <span className="text-lg">🤖</span>
+                    <span className="text-sm font-bold text-primary">Resposta Automática Watizat</span>
+                  </div>
+                )}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
