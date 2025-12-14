@@ -70,6 +70,8 @@ class UserRegister(BaseModel):
     need_categories: Optional[List[str]] = Field(default_factory=list)  # Categorias de ajuda que migrante precisa
     phone: Optional[str] = None
     linkedin: Optional[str] = None
+    location: Optional[dict] = None  # {lat: float, lng: float, address: str}
+    show_location: bool = False  # Se quer mostrar localização no feed
 
 class UserLogin(BaseModel):
     email: EmailStr
