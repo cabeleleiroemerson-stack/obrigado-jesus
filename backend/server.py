@@ -186,12 +186,18 @@ async def register(user_data: UserRegister):
         user_dict['help_categories'] = user_data.help_categories or []
         user_dict['phone'] = user_data.phone
         user_dict['linkedin'] = user_data.linkedin
+        user_dict['location'] = user_data.location
+        user_dict['show_location'] = user_data.show_location
     
     if user_data.role == 'migrant':
         user_dict['need_categories'] = user_data.need_categories or []
+        user_dict['location'] = user_data.location
+        user_dict['show_location'] = user_data.show_location
     
     if user_data.role == 'helper':
         user_dict['help_categories'] = user_data.help_categories or []
+        user_dict['location'] = user_data.location
+        user_dict['show_location'] = user_data.show_location
     
     await db.users.insert_one(user_dict)
     
