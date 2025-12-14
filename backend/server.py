@@ -697,6 +697,74 @@ async def get_volunteers(area: Optional[str] = None):
     
     return volunteers
 
+@api_router.get("/helpers-nearby")
+async def get_helpers_nearby(
+    lat: float, 
+    lng: float, 
+    category: Optional[str] = None,
+    radius: float = 10.0,  # km
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Busca helpers e voluntários próximos que podem ajudar em uma categoria específica.
+    Usa fórmula de Haversine para calcular distância.
+    """
+    import math
+    
+    def haversine_distance(lat1, lon1, lat2, lon2):
+        R = 6371  # Raio da Terra em km
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        delta_phi = math.radians(lat2 - lat1)
+        delta_lambda = math.radians(lon2 - lon1)
+        
+        a = math.sin(delta_phi/2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda/2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        
+        return R * c
+    
+    # Buscar helpers e voluntários com localização visível
+    query = {
+        'role': {'$in': ['helper', 'volunteer']},
+        'show_location': True,
+        'location': {'$ne': None}
+    }
+    
+    if category:
+        query['help_categories'] = category
+    
+    users = await db.users.find(query, {'_id': 0, 'password': 0, 'email': 0}).to_list(1000)
+    
+    nearby_users = []
+    for user in users:
+        if user.get('location') and user['location'].get('lat') and user['location'].get('lng'):
+            distance = haversine_distance(
+                lat, lng,
+                user['location']['lat'],
+                user['location']['lng']
+            )
+            if distance <= radius:
+                user['distance'] = round(distance, 2)
+                if isinstance(user.get('created_at'), str):
+                    user['created_at'] = datetime.fromisoformat(user['created_at'])
+                nearby_users.append(user)
+    
+    # Ordenar por distância
+    nearby_users.sort(key=lambda x: x['distance'])
+    
+    return nearby_users
+
+@api_router.put("/profile/location")
+async def update_location(location_data: dict, current_user: User = Depends(get_current_user)):
+    """Atualiza a localização do usuário"""
+    update = {
+        'location': location_data.get('location'),
+        'show_location': location_data.get('show_location', False)
+    }
+    
+    await db.users.update_one({'id': current_user.id}, {'$set': update})
+    return {'message': 'Location updated successfully'}
+
 app.include_router(api_router)
 
 app.add_middleware(
