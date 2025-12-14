@@ -213,24 +213,17 @@ async def create_post(post_data: PostCreate, current_user: User = Depends(get_cu
     await db.posts.insert_one(post_dict)
     
     if post_data.type == 'need':
-        auto_response_data = format_auto_response_post(post_data.category, post.id)
-        if auto_response_data:
-            auto_response = Post(
-                user_id='system',
-                type=auto_response_data['type'],
-                category=auto_response_data['category'],
-                title=auto_response_data['title'],
-                description=auto_response_data['description'],
-                location=None
-            )
-            
-            auto_response_dict = auto_response.model_dump()
-            auto_response_dict['created_at'] = auto_response_dict['created_at'].isoformat()
-            auto_response_dict['images'] = []
-            auto_response_dict['is_auto_response'] = True
-            auto_response_dict['reply_to'] = post.id
-            
-            await db.posts.insert_one(auto_response_dict)
+        auto_response = get_auto_response(post_data.category)
+        if auto_response:
+            message_data = {
+                'id': str(uuid.uuid4()),
+                'from_user_id': 'system',
+                'to_user_id': current_user.id,
+                'message': f"{auto_response['title']}\n\n{auto_response['content']}",
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'is_auto_response': True
+            }
+            await db.messages.insert_one(message_data)
     
     return post
 
