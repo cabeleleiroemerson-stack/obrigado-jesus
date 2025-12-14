@@ -66,6 +66,7 @@ class UserRegister(BaseModel):
     organization: Optional[str] = None
     years_experience: Optional[str] = None
     help_types: Optional[List[str]] = Field(default_factory=list)
+    help_categories: Optional[List[str]] = Field(default_factory=list)  # Categorias de ajuda (food, legal, health, etc.)
     phone: Optional[str] = None
     linkedin: Optional[str] = None
 
