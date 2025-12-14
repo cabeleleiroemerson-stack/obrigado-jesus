@@ -626,7 +626,8 @@ def main():
     tester = WatizatAPITester()
     
     try:
-        tester.run_all_tests()
+        # Run help categories specific tests
+        tester.run_help_categories_tests()
         success = tester.print_summary()
         return 0 if success else 1
     except KeyboardInterrupt:
