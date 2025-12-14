@@ -155,17 +155,17 @@ export default function VolunteerRegisterPage() {
         </button>
 
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 md:p-12">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-heading font-bold text-textPrimary mb-2">
-              🤝 Cadastro de Voluntário Profissional
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-textPrimary mb-2">
+              🤝 Cadastro de Voluntário
             </h1>
-            <p className="text-textSecondary">
+            <p className="text-sm sm:text-base text-textSecondary px-2">
               Ajude migrantes com sua expertise profissional
             </p>
           </div>
 
           {/* Progress Bar */}
-          <div className="mb-10">
+          <div className="mb-6 sm:mb-10">
             <div className="flex justify-between items-center mb-4">
               {steps.map((s, idx) => {
                 const Icon = s.icon;
@@ -174,22 +174,22 @@ export default function VolunteerRegisterPage() {
                 
                 return (
                   <React.Fragment key={s.number}>
-                    <div className="flex flex-col items-center">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all ${
+                    <div className="flex flex-col items-center min-w-0">
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-1 sm:mb-2 transition-all ${
                         isCompleted 
                           ? 'bg-green-500 text-white' 
                           : isActive 
                             ? 'bg-primary text-white scale-110' 
                             : 'bg-gray-200 text-gray-500'
                       }`}>
-                        {isCompleted ? <Check size={24} /> : <Icon size={24} />}
+                        {isCompleted ? <Check size={20} className="sm:w-6 sm:h-6" /> : <Icon size={20} className="sm:w-6 sm:h-6" />}
                       </div>
-                      <span className={`text-xs font-medium ${isActive ? 'text-primary' : 'text-gray-500'}`}>
+                      <span className={`text-[10px] sm:text-xs font-medium text-center ${isActive ? 'text-primary' : 'text-gray-500'}`}>
                         {s.label}
                       </span>
                     </div>
                     {idx < steps.length - 1 && (
-                      <div className={`flex-1 h-1 mx-2 rounded ${step > s.number ? 'bg-green-500' : 'bg-gray-200'}`} />
+                      <div className={`flex-1 h-1 mx-1 sm:mx-2 rounded ${step > s.number ? 'bg-green-500' : 'bg-gray-200'}`} />
                     )}
                   </React.Fragment>
                 );
