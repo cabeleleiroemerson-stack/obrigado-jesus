@@ -378,6 +378,9 @@ async def send_message(msg_data: DirectMessageCreate, current_user: User = Depen
     
     msg_dict = message.model_dump()
     msg_dict['created_at'] = msg_dict['created_at'].isoformat()
+    msg_dict['location'] = msg_data.location
+    msg_dict['media'] = msg_data.media or []
+    msg_dict['media_type'] = msg_data.media_type
     
     await db.messages.insert_one(msg_dict)
     return message
