@@ -188,6 +188,9 @@ async def register(user_data: UserRegister):
     if user_data.role == 'migrant':
         user_dict['need_categories'] = user_data.need_categories or []
     
+    if user_data.role == 'helper':
+        user_dict['help_categories'] = user_data.help_categories or []
+    
     await db.users.insert_one(user_dict)
     
     token = create_token(user.id, user.email)
