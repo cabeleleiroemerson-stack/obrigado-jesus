@@ -480,6 +480,20 @@ async def get_user_by_id(user_id: str, current_user: User = Depends(get_current_
     
     return user
 
+@api_router.get("/volunteers")
+async def get_volunteers(area: Optional[str] = None):
+    query = {'role': 'volunteer'}
+    if area:
+        query['professional_area'] = area
+    
+    volunteers = await db.users.find(query, {'_id': 0, 'password': 0, 'email': 0}).to_list(1000)
+    
+    for vol in volunteers:
+        if isinstance(vol.get('created_at'), str):
+            vol['created_at'] = datetime.fromisoformat(vol['created_at'])
+    
+    return volunteers
+
 app.include_router(api_router)
 
 app.add_middleware(
