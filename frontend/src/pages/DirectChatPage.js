@@ -231,24 +231,68 @@ export default function DirectChatPage() {
       </div>
 
       <div className="border-t border-gray-100 bg-white p-4">
-        <div className="max-w-3xl mx-auto flex gap-3">
-          <Textarea
-            data-testid="message-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Digite sua mensagem..."
-            rows={1}
-            className="rounded-2xl resize-none"
-          />
-          <Button
-            data-testid="send-message-button"
-            onClick={sendMessage}
-            disabled={sending || !input.trim()}
-            className="rounded-full w-12 h-12 p-0 bg-primary hover:bg-primary-hover flex-shrink-0"
-          >
-            <Send size={20} />
-          </Button>
+        <div className="max-w-3xl mx-auto">
+          {showMediaOptions && (
+            <div className="flex gap-2 mb-3 p-3 bg-gray-50 rounded-2xl">
+              <Button
+                data-testid="send-location-button"
+                onClick={sendLocation}
+                variant="outline"
+                size="sm"
+                className="flex-1 rounded-xl"
+              >
+                <MapPin size={18} className="mr-2" />
+                Localização
+              </Button>
+              <Button
+                data-testid="send-image-button"
+                onClick={() => sendMedia('image')}
+                variant="outline"
+                size="sm"
+                className="flex-1 rounded-xl"
+              >
+                <ImageIcon size={18} className="mr-2" />
+                Foto
+              </Button>
+              <Button
+                data-testid="send-video-button"
+                onClick={() => sendMedia('video')}
+                variant="outline"
+                size="sm"
+                className="flex-1 rounded-xl"
+              >
+                <Video size={18} className="mr-2" />
+                Vídeo
+              </Button>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <Button
+              data-testid="toggle-media-button"
+              onClick={() => setShowMediaOptions(!showMediaOptions)}
+              variant="outline"
+              className="rounded-full w-12 h-12 p-0 flex-shrink-0"
+            >
+              <Paperclip size={20} />
+            </Button>
+            <Textarea
+              data-testid="message-input"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Digite sua mensagem..."
+              rows={1}
+              className="rounded-2xl resize-none"
+            />
+            <Button
+              data-testid="send-message-button"
+              onClick={() => sendMessage()}
+              disabled={sending || !input.trim()}
+              className="rounded-full w-12 h-12 p-0 bg-primary hover:bg-primary-hover flex-shrink-0"
+            >
+              <Send size={20} />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
