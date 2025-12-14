@@ -71,6 +71,7 @@ function App() {
           <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/home" />} />
           <Route path="/direct-chat/:userId" element={user ? <DirectChatPage /> : <Navigate to="/" />} />
           <Route path="/volunteers" element={user ? <VolunteersPage /> : <Navigate to="/" />} />
+          <Route path="/volunteer-register" element={<VolunteerRegisterPage />} />
         </Routes>
       </BrowserRouter>
     </AuthContext.Provider>
