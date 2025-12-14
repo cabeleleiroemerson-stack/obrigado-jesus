@@ -41,6 +41,8 @@ class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: EmailStr
     name: str
+    display_name: Optional[str] = None
+    use_display_name: bool = False
     role: str
     location: Optional[dict] = None
     bio: Optional[str] = None
