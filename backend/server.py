@@ -364,6 +364,9 @@ class DirectMessage(BaseModel):
 class DirectMessageCreate(BaseModel):
     to_user_id: str
     message: str
+    location: Optional[dict] = None
+    media: Optional[List[str]] = Field(default_factory=list)
+    media_type: Optional[str] = None
 
 @api_router.post("/messages")
 async def send_message(msg_data: DirectMessageCreate, current_user: User = Depends(get_current_user)):
