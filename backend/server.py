@@ -286,7 +286,7 @@ async def get_comments(post_id: str):
     return comments
 
 @api_router.get("/posts")
-async def get_posts(type: Optional[str] = None, category: Optional[str] = None):
+async def get_posts(type: Optional[str] = None, category: Optional[str] = None, current_user: User = Depends(get_current_user)):
     query = {}
     if type:
         query['type'] = type
@@ -295,6 +295,11 @@ async def get_posts(type: Optional[str] = None, category: Optional[str] = None):
     
     posts = await db.posts.find(query, {'_id': 0}).sort('created_at', -1).to_list(100)
     
+    # Se o usuário é voluntário, filtrar posts baseado nas categorias que ele pode ajudar
+    user_data = await db.users.find_one({'id': current_user.id}, {'_id': 0})
+    user_help_categories = user_data.get('help_categories', []) if user_data else []
+    
+    filtered_posts = []
     for post in posts:
         if isinstance(post['created_at'], str):
             post['created_at'] = datetime.fromisoformat(post['created_at'])
@@ -306,8 +311,25 @@ async def get_posts(type: Optional[str] = None, category: Optional[str] = None):
             if user:
                 display_name = user.get('display_name') if user.get('use_display_name') else user['name']
                 post['user'] = {'name': display_name, 'role': user['role']}
+        
+        # Se é voluntário e o post é do tipo "need" (precisa de ajuda)
+        # só mostrar se a categoria do post está nas categorias que o voluntário pode ajudar
+        if current_user.role == 'volunteer':
+            if post['type'] == 'need':
+                # Se voluntário não tem categorias definidas ou a categoria do post está nas dele
+                if not user_help_categories or post['category'] in user_help_categories:
+                    post['can_help'] = True
+                    filtered_posts.append(post)
+            else:
+                # Posts de oferta (type='offer') todos podem ver
+                post['can_help'] = True
+                filtered_posts.append(post)
+        else:
+            # Migrantes e outros usuários veem todos os posts
+            post['can_help'] = True
+            filtered_posts.append(post)
     
-    return posts
+    return filtered_posts
 
 @api_router.get("/services")
 async def get_services(category: Optional[str] = None):
