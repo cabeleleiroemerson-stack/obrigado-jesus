@@ -573,7 +573,6 @@ export default function NearbyHelpersPage() {
               </div>
             )}
           </div>
-        </div>
       </div>
 
       <BottomNav />
