@@ -189,39 +189,48 @@ frontend:
 
   - task: "Endpoint GET /api/help-locations - Lista locais de ajuda com filtro"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Criado endpoint para listar 54 locais de ajuda dos PDFs Watizat, com filtro por categoria e ordenação por distância"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTED: Endpoint funciona perfeitamente. Retorna todos os 54 locais quando sem parâmetros. Filtro por categoria funciona corretamente (ex: ?category=food retorna apenas 9 locais de alimentação). Ordenação por distância funciona quando coordenadas são fornecidas (?lat=48.8566&lng=2.3522). Combinação de categoria e coordenadas também funciona. Todos os locais têm campos obrigatórios: name, address, category, lat, lng, icon, color."
 
   - task: "Endpoint GET /api/help-locations/nearest - Local mais próximo"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Criado endpoint que calcula e retorna o local mais próximo usando fórmula de Haversine"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTED: Endpoint funciona corretamente. Retorna o local mais próximo das coordenadas fornecidas (lat=48.8566&lng=2.3522 retorna COMEDE a 0.0km). Filtro por categoria funciona (?category=food retorna RESTOS DU CŒUR - République a 1.48km). Resposta inclui todos os campos obrigatórios: name, address, phone, category, hours, lat, lng, distance, icon, color."
 
   - task: "Endpoint GET /api/help-locations/categories - Lista categorias"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Criado endpoint que retorna todas as categorias com contagem de locais"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ TESTED: Endpoint funciona perfeitamente. Retorna 9 categorias (incluindo 'Todos' com 54 locais). Categorias incluem: food (9), health (16), legal (6), housing (7), clothes (3), social (10), education (2), work (1). Cada categoria tem icon, color (exceto 'all') e count. Estrutura da resposta está correta."
 
   - task: "Frontend MapPage com dados da API e localização do usuário"
     implemented: true
