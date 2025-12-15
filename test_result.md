@@ -252,9 +252,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Endpoint GET /api/help-locations - Lista locais de ajuda com filtro"
-    - "Endpoint GET /api/help-locations/nearest - Local mais próximo"
-    - "Endpoint GET /api/help-locations/categories - Lista categorias"
+    - "Frontend MapPage com dados da API e localização do usuário"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
