@@ -270,15 +270,33 @@ export default function MapPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-12 min-h-[300px]">
             <Loader2 className="animate-spin text-primary" size={48} />
           </div>
         )}
 
-        {!loading && !error && (
+        {!loading && (
           <>
-            {/* Mapa Estilizado */}
-            <div className="relative w-full h-[500px] sm:h-[600px] rounded-3xl overflow-hidden border-4 border-primary/20 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 shadow-2xl mb-4">
+            {/* Error State */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 flex items-center gap-3">
+                <AlertCircle className="text-red-500" size={24} />
+                <div>
+                  <p className="text-red-800 font-medium">{error}</p>
+                  <Button
+                    onClick={fetchLocations}
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                  >
+                    Tentar novamente
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Mapa Estilizado - SEMPRE VISÍVEL */}
+            <div className="relative w-full min-h-[400px] h-[50vh] sm:h-[500px] lg:h-[600px] rounded-3xl overflow-hidden border-4 border-primary/20 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 shadow-2xl mb-4">
               {/* Grid de fundo */}
               <div className="absolute inset-0 opacity-10">
                 <div className="absolute inset-0" style={{
