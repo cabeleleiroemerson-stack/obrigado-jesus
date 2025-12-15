@@ -236,6 +236,7 @@ export default function HomePage() {
 
   const getLocation = () => {
     if (navigator.geolocation) {
+      toast.info('Obtendo localização...');
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setNewPost({
@@ -248,8 +249,26 @@ export default function HomePage() {
           });
           toast.success('Localização adicionada!');
         },
-        () => toast.error('Erro ao obter localização')
+        (error) => {
+          console.error('Geolocation error:', error);
+          if (error.code === 1) {
+            toast.error('Permissão de localização negada. Ative nas configurações do navegador.');
+          } else if (error.code === 2) {
+            toast.error('Localização indisponível. Verifique sua conexão.');
+          } else if (error.code === 3) {
+            toast.error('Tempo esgotado ao obter localização. Tente novamente.');
+          } else {
+            toast.error('Erro ao obter localização. Tente novamente.');
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
       );
+    } else {
+      toast.error('Seu navegador não suporta geolocalização');
     }
   };
 
