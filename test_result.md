@@ -187,6 +187,54 @@ frontend:
         - agent: "main"
         - comment: "Adicionada verificação de canChat e UI de restrição"
 
+  - task: "Endpoint GET /api/help-locations - Lista locais de ajuda com filtro"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Criado endpoint para listar 54 locais de ajuda dos PDFs Watizat, com filtro por categoria e ordenação por distância"
+
+  - task: "Endpoint GET /api/help-locations/nearest - Local mais próximo"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Criado endpoint que calcula e retorna o local mais próximo usando fórmula de Haversine"
+
+  - task: "Endpoint GET /api/help-locations/categories - Lista categorias"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Criado endpoint que retorna todas as categorias com contagem de locais"
+
+  - task: "Frontend MapPage com dados da API e localização do usuário"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/MapPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Atualizado MapPage para buscar dados da API, adicionar localização do usuário, e encontrar local mais próximo"
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
