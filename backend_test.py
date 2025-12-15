@@ -555,6 +555,232 @@ class WatizatAPITester:
         
         return True
 
+    def test_help_locations_categories(self):
+        """Test GET /api/help-locations/categories endpoint"""
+        success, response = self.run_test(
+            "Help Locations Categories",
+            "GET",
+            "help-locations/categories",
+            200
+        )
+        
+        if success and isinstance(response, dict) and 'categories' in response:
+            categories = response['categories']
+            
+            # Check if we have expected categories
+            expected_categories = ['food', 'health', 'legal', 'housing', 'clothes', 'social', 'education', 'work']
+            found_categories = [cat['value'] for cat in categories if cat['value'] != 'all']
+            
+            # Check if each category has required fields
+            all_have_required_fields = all(
+                'icon' in cat and 'color' in cat and 'count' in cat 
+                for cat in categories
+            )
+            
+            if all_have_required_fields:
+                self.log_test("Categories Structure Validation", True, f"Found {len(categories)} categories with proper structure")
+                return True
+            else:
+                self.log_test("Categories Structure Validation", False, "Missing required fields (icon, color, count)")
+        
+        return False
+
+    def test_help_locations_all(self):
+        """Test GET /api/help-locations without parameters (should return all 54 locations)"""
+        success, response = self.run_test(
+            "Help Locations - All Locations",
+            "GET",
+            "help-locations",
+            200
+        )
+        
+        if success and isinstance(response, dict) and 'locations' in response:
+            locations = response['locations']
+            total = response.get('total', 0)
+            
+            # Should return 54 locations based on help_locations.py
+            if total == 54 and len(locations) == 54:
+                self.log_test("All Locations Count", True, f"Returned {total} locations as expected")
+                
+                # Check structure of first location
+                if locations and all(field in locations[0] for field in ['name', 'address', 'category', 'lat', 'lng', 'icon', 'color']):
+                    self.log_test("Location Structure", True, "Locations have required fields")
+                    return True
+                else:
+                    self.log_test("Location Structure", False, "Missing required fields in location objects")
+            else:
+                self.log_test("All Locations Count", False, f"Expected 54 locations, got {total}")
+        
+        return False
+
+    def test_help_locations_filter_by_category(self):
+        """Test GET /api/help-locations?category=food (should return only food locations)"""
+        success, response = self.run_test(
+            "Help Locations - Filter by Food Category",
+            "GET",
+            "help-locations?category=food",
+            200
+        )
+        
+        if success and isinstance(response, dict) and 'locations' in response:
+            locations = response['locations']
+            
+            # All returned locations should be food category
+            all_food = all(loc.get('category') == 'food' for loc in locations)
+            
+            if all_food and len(locations) > 0:
+                self.log_test("Food Category Filter", True, f"Returned {len(locations)} food locations")
+                return True
+            else:
+                self.log_test("Food Category Filter", False, f"Filter failed or no food locations found")
+        
+        return False
+
+    def test_help_locations_with_coordinates(self):
+        """Test GET /api/help-locations with coordinates (should order by distance)"""
+        # Using Paris center coordinates
+        lat, lng = 48.8566, 2.3522
+        
+        success, response = self.run_test(
+            "Help Locations - With Coordinates (Distance Sorting)",
+            "GET",
+            f"help-locations?lat={lat}&lng={lng}",
+            200
+        )
+        
+        if success and isinstance(response, dict) and 'locations' in response:
+            locations = response['locations']
+            
+            # Check if locations have distance field and are sorted
+            if locations and all('distance' in loc for loc in locations):
+                # Check if sorted by distance (ascending)
+                distances = [loc['distance'] for loc in locations]
+                is_sorted = all(distances[i] <= distances[i+1] for i in range(len(distances)-1))
+                
+                if is_sorted:
+                    self.log_test("Distance Sorting", True, f"Locations properly sorted by distance. Nearest: {distances[0]}km")
+                    return True
+                else:
+                    self.log_test("Distance Sorting", False, "Locations not properly sorted by distance")
+            else:
+                self.log_test("Distance Field", False, "Distance field missing from locations")
+        
+        return False
+
+    def test_help_locations_category_and_coordinates(self):
+        """Test GET /api/help-locations with both category and coordinates"""
+        lat, lng = 48.8566, 2.3522
+        
+        success, response = self.run_test(
+            "Help Locations - Health Category with Coordinates",
+            "GET",
+            f"help-locations?category=health&lat={lat}&lng={lng}",
+            200
+        )
+        
+        if success and isinstance(response, dict) and 'locations' in response:
+            locations = response['locations']
+            
+            # All should be health category and have distance
+            all_health = all(loc.get('category') == 'health' for loc in locations)
+            all_have_distance = all('distance' in loc for loc in locations)
+            
+            if all_health and all_have_distance and len(locations) > 0:
+                self.log_test("Health Category + Distance", True, f"Returned {len(locations)} health locations with distances")
+                return True
+            else:
+                self.log_test("Health Category + Distance", False, "Filter or distance calculation failed")
+        
+        return False
+
+    def test_help_locations_nearest(self):
+        """Test GET /api/help-locations/nearest endpoint"""
+        lat, lng = 48.8566, 2.3522  # Paris center
+        
+        success, response = self.run_test(
+            "Help Locations - Nearest Location",
+            "GET",
+            f"help-locations/nearest?lat={lat}&lng={lng}",
+            200
+        )
+        
+        if success and isinstance(response, dict) and 'nearest' in response:
+            nearest = response['nearest']
+            
+            # Check required fields
+            required_fields = ['name', 'address', 'phone', 'category', 'hours', 'lat', 'lng', 'distance', 'icon', 'color']
+            has_all_fields = all(field in nearest for field in required_fields)
+            
+            if has_all_fields:
+                self.log_test("Nearest Location Structure", True, f"Nearest location: {nearest['name']} at {nearest['distance']}km")
+                return True
+            else:
+                missing_fields = [field for field in required_fields if field not in nearest]
+                self.log_test("Nearest Location Structure", False, f"Missing fields: {missing_fields}")
+        
+        return False
+
+    def test_help_locations_nearest_with_category(self):
+        """Test GET /api/help-locations/nearest with category filter"""
+        lat, lng = 48.8566, 2.3522
+        
+        success, response = self.run_test(
+            "Help Locations - Nearest Food Location",
+            "GET",
+            f"help-locations/nearest?lat={lat}&lng={lng}&category=food",
+            200
+        )
+        
+        if success and isinstance(response, dict) and 'nearest' in response:
+            nearest = response['nearest']
+            
+            # Should be food category
+            if nearest.get('category') == 'food' and 'distance' in nearest:
+                self.log_test("Nearest Food Location", True, f"Nearest food: {nearest['name']} at {nearest['distance']}km")
+                return True
+            else:
+                self.log_test("Nearest Food Location", False, f"Expected food category, got {nearest.get('category')}")
+        
+        return False
+
+    def run_help_locations_tests(self):
+        """Run tests specifically for help locations endpoints"""
+        print("\n🗺️ Starting Help Locations Endpoints Tests...")
+        print(f"📍 Base URL: {self.base_url}")
+        
+        # Test basic connectivity
+        self.test_root_endpoint()
+        
+        # Test 1: Categories endpoint
+        print("\n📝 Step 1: Test categories endpoint")
+        self.test_help_locations_categories()
+        
+        # Test 2: All locations
+        print("\n📝 Step 2: Test all locations endpoint")
+        self.test_help_locations_all()
+        
+        # Test 3: Filter by category
+        print("\n📝 Step 3: Test category filtering")
+        self.test_help_locations_filter_by_category()
+        
+        # Test 4: With coordinates (distance sorting)
+        print("\n📝 Step 4: Test distance sorting")
+        self.test_help_locations_with_coordinates()
+        
+        # Test 5: Category + coordinates
+        print("\n📝 Step 5: Test category filter with coordinates")
+        self.test_help_locations_category_and_coordinates()
+        
+        # Test 6: Nearest location
+        print("\n📝 Step 6: Test nearest location endpoint")
+        self.test_help_locations_nearest()
+        
+        # Test 7: Nearest with category
+        print("\n📝 Step 7: Test nearest location with category")
+        self.test_help_locations_nearest_with_category()
+        
+        return True
+
     def run_help_categories_tests(self):
         """Run tests specifically for help categories functionality"""
         print("\n🎯 Starting Help Categories Feature Tests...")
