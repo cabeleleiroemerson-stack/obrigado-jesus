@@ -1013,6 +1013,150 @@ async def seed_help_locations():
     
     return {'message': f'{len(locations)} locais adicionados com sucesso', 'seeded': True, 'count': len(locations)}
 
+# ==================== ADVERTISEMENTS ENDPOINTS ====================
+
+@api_router.get("/advertisements")
+async def get_advertisements(type: Optional[str] = None, active_only: bool = True):
+    """Retorna anúncios/divulgações para exibir na sidebar"""
+    query = {}
+    if type:
+        query['type'] = type
+    if active_only:
+        query['is_active'] = True
+    
+    ads = await db.advertisements.find(query, {'_id': 0}).sort('priority', -1).to_list(50)
+    return ads
+
+@api_router.post("/admin/advertisements")
+async def create_advertisement(ad_data: AdvertisementCreate, current_user: User = Depends(get_current_user)):
+    """Cria um novo anúncio (admin only)"""
+    if current_user.role != 'admin':
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    ad = Advertisement(**ad_data.model_dump())
+    ad_dict = ad.model_dump()
+    
+    await db.advertisements.insert_one(ad_dict)
+    return {'message': 'Anúncio criado com sucesso', 'id': ad.id}
+
+@api_router.get("/admin/advertisements")
+async def admin_get_advertisements(current_user: User = Depends(get_current_user)):
+    """Lista todos os anúncios (admin only)"""
+    if current_user.role != 'admin':
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    ads = await db.advertisements.find({}, {'_id': 0}).sort('created_at', -1).to_list(100)
+    return ads
+
+@api_router.put("/admin/advertisements/{ad_id}")
+async def update_advertisement(ad_id: str, ad_data: dict, current_user: User = Depends(get_current_user)):
+    """Atualiza um anúncio (admin only)"""
+    if current_user.role != 'admin':
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    # Remover campos que não devem ser atualizados
+    ad_data.pop('id', None)
+    ad_data.pop('created_at', None)
+    
+    result = await db.advertisements.update_one({'id': ad_id}, {'$set': ad_data})
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Anúncio não encontrado")
+    
+    return {'message': 'Anúncio atualizado com sucesso'}
+
+@api_router.delete("/admin/advertisements/{ad_id}")
+async def delete_advertisement(ad_id: str, current_user: User = Depends(get_current_user)):
+    """Exclui um anúncio (admin only)"""
+    if current_user.role != 'admin':
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    result = await db.advertisements.delete_one({'id': ad_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Anúncio não encontrado")
+    
+    return {'message': 'Anúncio excluído com sucesso'}
+
+@api_router.post("/advertisements/seed")
+async def seed_advertisements():
+    """Popula com anúncios iniciais de motivação e doação"""
+    
+    # Verificar se já existem anúncios
+    existing = await db.advertisements.count_documents({})
+    if existing > 0:
+        return {'message': f'{existing} anúncios já existem', 'seeded': False}
+    
+    default_ads = [
+        {
+            'id': str(uuid.uuid4()),
+            'type': 'motivation',
+            'title': '💪 Você é mais forte do que imagina!',
+            'content': 'Cada dia é uma nova oportunidade. Não desista dos seus sonhos. A jornada pode ser difícil, mas você não está sozinho.',
+            'image_url': 'https://images.unsplash.com/photo-1493612276216-ee3925520721?w=400',
+            'is_active': True,
+            'priority': 10,
+            'created_at': datetime.now(timezone.utc)
+        },
+        {
+            'id': str(uuid.uuid4()),
+            'type': 'motivation',
+            'title': '🙏 Deus está contigo',
+            'content': '"Porque eu, o Senhor teu Deus, te tomo pela tua mão direita; e te digo: Não temas, eu te ajudo." - Isaías 41:13',
+            'image_url': 'https://images.unsplash.com/photo-1507692049790-de58290a4334?w=400',
+            'is_active': True,
+            'priority': 9,
+            'created_at': datetime.now(timezone.utc)
+        },
+        {
+            'id': str(uuid.uuid4()),
+            'type': 'motivation',
+            'title': '✨ Acredite em você',
+            'content': 'Sua história não terminou ainda. Os melhores capítulos ainda estão por vir. Continue caminhando com fé e esperança.',
+            'image_url': 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=400',
+            'is_active': True,
+            'priority': 8,
+            'created_at': datetime.now(timezone.utc)
+        },
+        {
+            'id': str(uuid.uuid4()),
+            'type': 'donation',
+            'title': '🌍 Ajude a África - Doe Agora',
+            'content': 'Milhares de famílias na África precisam de ajuda urgente. Sua doação pode salvar vidas, fornecer alimentos, água limpa e medicamentos para quem mais precisa.',
+            'image_url': 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=400',
+            'link_url': 'https://www.unicef.org/appeals/africa',
+            'link_text': 'Doar Agora',
+            'is_active': True,
+            'priority': 15,
+            'created_at': datetime.now(timezone.utc)
+        },
+        {
+            'id': str(uuid.uuid4()),
+            'type': 'donation',
+            'title': '❤️ Seja um anjo para alguém',
+            'content': 'Com apenas €5 você pode fornecer uma refeição completa para uma criança. Cada contribuição faz a diferença.',
+            'image_url': 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400',
+            'link_url': 'https://donate.worldvision.org',
+            'link_text': 'Contribuir',
+            'is_active': True,
+            'priority': 14,
+            'created_at': datetime.now(timezone.utc)
+        },
+        {
+            'id': str(uuid.uuid4()),
+            'type': 'motivation',
+            'title': '🌟 Nunca perca a esperança',
+            'content': '"Tudo posso naquele que me fortalece." - Filipenses 4:13. Você tem dentro de si a força para superar qualquer obstáculo.',
+            'image_url': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
+            'is_active': True,
+            'priority': 7,
+            'created_at': datetime.now(timezone.utc)
+        }
+    ]
+    
+    for ad in default_ads:
+        await db.advertisements.insert_one(ad)
+    
+    return {'message': f'{len(default_ads)} anúncios criados com sucesso', 'seeded': True}
+
 app.include_router(api_router)
 
 app.add_middleware(
