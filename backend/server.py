@@ -511,11 +511,19 @@ async def admin_get_posts(current_user: User = Depends(get_current_user)):
     
     posts = await db.posts.find({}, {'_id': 0}).sort('created_at', -1).to_list(1000)
     
+    # Batch fetch all unique user_ids to avoid N+1 queries
+    user_ids = list(set(post['user_id'] for post in posts if post.get('user_id')))
+    users_dict = {}
+    if user_ids:
+        users_cursor = db.users.find({'id': {'$in': user_ids}}, {'_id': 0, 'password': 0, 'email': 0})
+        async for user in users_cursor:
+            users_dict[user['id']] = user
+    
     for post in posts:
         if isinstance(post.get('created_at'), str):
             post['created_at'] = datetime.fromisoformat(post['created_at'])
-        # Get user info
-        user = await db.users.find_one({'id': post['user_id']}, {'_id': 0, 'password': 0, 'email': 0})
+        # Get user info from batch
+        user = users_dict.get(post.get('user_id'))
         if user:
             post['user'] = {'name': user['name'], 'role': user['role']}
     
