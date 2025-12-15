@@ -338,6 +338,14 @@ async def get_posts(type: Optional[str] = None, category: Optional[str] = None, 
     user_data = await db.users.find_one({'id': current_user.id}, {'_id': 0})
     user_help_categories = user_data.get('help_categories', []) if user_data else []
     
+    # Batch fetch all unique user_ids to avoid N+1 queries
+    user_ids = list(set(post['user_id'] for post in posts if post['user_id'] != 'system'))
+    users_dict = {}
+    if user_ids:
+        users_cursor = db.users.find({'id': {'$in': user_ids}}, {'_id': 0, 'password': 0, 'email': 0})
+        async for user in users_cursor:
+            users_dict[user['id']] = user
+    
     filtered_posts = []
     for post in posts:
         if isinstance(post['created_at'], str):
@@ -346,7 +354,7 @@ async def get_posts(type: Optional[str] = None, category: Optional[str] = None, 
         if post['user_id'] == 'system':
             post['user'] = {'name': 'Watizat Assistant', 'role': 'assistant'}
         else:
-            user = await db.users.find_one({'id': post['user_id']}, {'_id': 0, 'password': 0, 'email': 0})
+            user = users_dict.get(post['user_id'])
             if user:
                 display_name = user.get('display_name') if user.get('use_display_name') else user['name']
                 post['user'] = {'name': display_name, 'role': user['role']}
