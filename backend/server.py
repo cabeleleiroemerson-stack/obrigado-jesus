@@ -1205,9 +1205,16 @@ async def get_external_jobs():
     
     # Se cache existe e tem menos de 1 hora, usar cache
     if cached and cached.get('updated_at'):
-        cache_age = datetime.now(timezone.utc) - cached['updated_at']
-        if cache_age < timedelta(hours=1):
-            return {'jobs': cached.get('jobs', []), 'cached': True}
+        try:
+            cached_time = cached['updated_at']
+            # Garantir que é aware
+            if cached_time.tzinfo is None:
+                cached_time = cached_time.replace(tzinfo=timezone.utc)
+            cache_age = datetime.now(timezone.utc) - cached_time
+            if cache_age < timedelta(hours=1):
+                return {'jobs': cached.get('jobs', []), 'cached': True}
+        except Exception as e:
+            logging.error(f"Cache time error: {e}")
     
     # Buscar novas vagas
     jobs = await fetch_rozgarline_jobs()
