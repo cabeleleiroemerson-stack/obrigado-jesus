@@ -571,17 +571,34 @@ class WatizatAPITester:
             expected_categories = ['food', 'health', 'legal', 'housing', 'clothes', 'social', 'education', 'work']
             found_categories = [cat['value'] for cat in categories if cat['value'] != 'all']
             
-            # Check if each category has required fields
-            all_have_required_fields = all(
-                'icon' in cat and 'color' in cat and 'count' in cat 
-                for cat in categories
-            )
+            # Check if each category has required fields (except 'all' which may not have color)
+            all_have_required_fields = True
+            for cat in categories:
+                if cat['value'] == 'all':
+                    # 'all' category should have icon and count, but color is optional
+                    if not ('icon' in cat and 'count' in cat):
+                        all_have_required_fields = False
+                        break
+                else:
+                    # Other categories should have icon, color, and count
+                    if not ('icon' in cat and 'color' in cat and 'count' in cat):
+                        all_have_required_fields = False
+                        break
             
-            if all_have_required_fields:
-                self.log_test("Categories Structure Validation", True, f"Found {len(categories)} categories with proper structure")
+            # Check if we found the expected categories
+            has_expected_categories = all(cat in found_categories for cat in expected_categories)
+            
+            if all_have_required_fields and has_expected_categories:
+                self.log_test("Categories Structure Validation", True, f"Found {len(categories)} categories with proper structure including: {', '.join(expected_categories)}")
                 return True
             else:
-                self.log_test("Categories Structure Validation", False, "Missing required fields (icon, color, count)")
+                error_msg = []
+                if not all_have_required_fields:
+                    error_msg.append("Missing required fields")
+                if not has_expected_categories:
+                    missing = [cat for cat in expected_categories if cat not in found_categories]
+                    error_msg.append(f"Missing categories: {missing}")
+                self.log_test("Categories Structure Validation", False, "; ".join(error_msg))
         
         return False
 
