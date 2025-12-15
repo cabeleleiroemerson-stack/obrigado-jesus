@@ -411,31 +411,13 @@ export default function HomePage() {
               </DialogDescription>
             </DialogHeader>
             <div 
-              className="flex-1 overflow-y-scroll px-2 py-2" 
+              className="flex-1 overflow-y-scroll px-2 py-2 scroll-container" 
               style={{ 
                 maxHeight: 'calc(85vh - 200px)',
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#1CA9C9 #f1f1f1'
               }}
             >
-              <style>
-                {`
-                  .scroll-container::-webkit-scrollbar {
-                    width: 8px;
-                  }
-                  .scroll-container::-webkit-scrollbar-track {
-                    background: #f1f1f1;
-                    border-radius: 10px;
-                  }
-                  .scroll-container::-webkit-scrollbar-thumb {
-                    background: #1CA9C9;
-                    border-radius: 10px;
-                  }
-                  .scroll-container::-webkit-scrollbar-thumb:hover {
-                    background: #178ea8;
-                  }
-                `}
-              </style>
               <div className="space-y-6 pr-2">
                 {/* Categoria */}
                 <div className="bg-gray-50 p-5 rounded-2xl">
