@@ -315,6 +315,7 @@ export default function AdminDashboard() {
     { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
     { id: 'users', label: 'Usuários', icon: Users },
     { id: 'posts', label: 'Publicações', icon: FileText },
+    { id: 'ads', label: 'Divulgações', icon: Megaphone },
   ];
 
   return (
