@@ -401,7 +401,7 @@ export default function HomePage() {
               {user?.role === 'migrant' ? 'Preciso de Ajuda' : 'Oferecer Ajuda'}
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-3xl max-w-2xl max-h-[90vh] flex flex-col" data-testid="create-post-dialog">
+          <DialogContent className="rounded-3xl max-w-2xl h-[90vh] sm:h-auto sm:max-h-[90vh] flex flex-col overflow-hidden" data-testid="create-post-dialog">
             <DialogHeader className="pb-4 border-b flex-shrink-0">
               <DialogTitle className="text-2xl font-heading">
                 {newPost.type === 'need' ? '🆘 Preciso de Ajuda' : '🤝 Quero Ajudar'}
@@ -410,8 +410,14 @@ export default function HomePage() {
                 Preencha as informações abaixo para publicar
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto overscroll-contain px-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-              <div className="space-y-6 py-4">
+            <div 
+              className="flex-1 overflow-y-auto overscroll-contain px-1 -mx-1 touch-pan-y" 
+              style={{ 
+                WebkitOverflowScrolling: 'touch',
+                minHeight: 0 
+              }}
+            >
+              <div className="space-y-6 py-4 px-1">
                 {/* Categoria */}
                 <div className="bg-gray-50 p-5 rounded-2xl">
                   <Label className="text-base font-bold mb-3 block">📂 Selecione a Categoria</Label>
