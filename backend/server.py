@@ -15,6 +15,8 @@ import jwt
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from pdf_processor import WatizatPDFProcessor
 from auto_responses import get_auto_response, format_auto_response_post
+from help_locations import HELP_LOCATIONS, get_all_help_locations, get_help_locations_by_category
+import math
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
